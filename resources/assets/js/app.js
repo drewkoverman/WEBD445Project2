@@ -8,6 +8,7 @@
 require('./bootstrap');
 
 window.Vue = require('vue');
+window.moment = require('moment');
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to
@@ -16,6 +17,11 @@ window.Vue = require('vue');
  */
 
 Vue.component('example', require('./components/Example.vue'));
+Vue.component('navigation', require('./components/Navigation.vue'));
+Vue.component('hero', require('./components/Hero.vue'));
+Vue.component('orders', require('./components/Orders.vue'));
+Vue.component('framework', require('./components/Framework.vue'));
+Vue.component('footer-component', require('./components/Footer.vue'));
 
 const app = new Vue({
     el: '#app'

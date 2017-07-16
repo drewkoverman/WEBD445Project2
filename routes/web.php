@@ -11,6 +11,6 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', 'OrderController@index');
+
+Route::resource('orders', 'OrderController');
