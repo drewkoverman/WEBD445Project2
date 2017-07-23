@@ -37,7 +37,7 @@
                         </span>
                       </td>
                       <td>
-                        <button class="btn btn-app btn-xs fa-lg">
+                        <button class="btn btn-app btn-xs fa-lg" v-on:click.prevent="deleteOrder(item.id)">
                           <span class="fa fa-trash-o"></span>
                         </button>
                       </td>
@@ -47,39 +47,41 @@
               </div>
             </div>
             <div class="col-md-4 bg-gray">
-              <form>
+              <form name="frmOrders" novalidate="" v-on:submit.prevent="addOrder()">
               <div class="col-md-6">
                 <div class="form-group">
-                  <input type="text" class="form-control input-sm" id="" placeholder="Orginal Zipcode" v-model="startingZip" />
+                  <input type="text" class="form-control input-sm" placeholder="Orginal Zipcode" v-model="startingZip" />
                   <small v-show="startingCity"> {{ startingCity }}</small>
+                  <input type="hidden" id="orginal" name="orginal" v-model="startingCity"  />
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="form-group">
-                  <input type="text" class="form-control input-sm" id="" placeholder="Destination Zipcode" v-model="endingZip" />
+                  <input type="text" class="form-control input-sm"  placeholder="Destination Zipcode" v-model="endingZip" />
                   <small v-show="endingCity"> {{ endingCity }}</small>
+                  <input type="hidden" id="destination" name="destination" v-model="endingCity"  />
                 </div>
               </div>
               <div class="col-md-12">
                 <div class="form-group controls">
-                  <input placeholder="Moving Date" class="form-control input-sm" type="text" onfocus="(this.type='date')" onblur="(this.type='text')" id="date" v-model="movingDate">
+                  <input placeholder="Moving Date" class="form-control input-sm" name="moving_date" id="moving_date" type="text" onfocus="(this.type='date')" onblur="(this.type='text')" v-model="movingDate">
 
                 </div>
                 <div class="form-group">
-                  <input type="text" class="form-control input-sm" id="" placeholder="Fullname" v-model="fullName" />
+                  <input type="text" class="form-control input-sm" id="fullName" name="fullName" placeholder="Fullname" v-model="fullName" />
                 </div>
                 <div class="form-group">
-                  <input type="text" class="form-control input-sm" id="" placeholder="Email Address" v-model="email" />
+                  <input type="text" class="form-control input-sm" id="email" name="email" placeholder="Email Address" v-model="email" />
                 </div>
                 <div class="form-group">
-                  <input type="text" class="form-control input-sm" id="" placeholder="Dwelling Type" v-model="dwellingType" />
+                  <input type="text" class="form-control input-sm" id="type" name="type" placeholder="Dwelling Type" v-model="dwellingType" />
                 </div>
                 <div class="checkbox">
                   <label>
-                    <input type="checkbox" v-model="flex" /> My Date is flexible
+                    <input type="checkbox" name="flexibility" value="1" v-model="flex" /> My Date is flexible
                   </label>
                 </div>
-                <button class="btn btn-app btn-block">Mint My Move</button>
+                <button type="submit" class="btn btn-app btn-block">Mint My Move</button>
               </div>
             </form>
 
@@ -103,13 +105,14 @@
         		startingZip: '',
             startingCity: '',
             endingZip: '',
-            endingCity: ''
+            endingCity: '',
+            orders: {}
           }
         },
 
         mounted: function() {
           this.fetch();
-          console.log('componented mounted');
+
         },
 
         computed: {
@@ -138,9 +141,11 @@
 
         methods: {
           fetch: function() {
-            //console.log(this.list);
-            //console.log(JSON.parse(this.list));
-            this.items = JSON.parse(this.list);
+            var app = this;
+            axios.get('api/v1/orders').then(function (response) {
+              console.log(response.data);
+              app.items = response.data;
+            })
           },
 
           lookupStartingZip: _.debounce(function () {
@@ -172,7 +177,48 @@
                 app.endingCity = "Invalid zipcode";
               }
             })
-          }, 500)
+          }, 500),
+
+          addOrder: function() {
+            var app = this;
+
+            axios.post('api/v1/orders', {
+              name: app.fullName,
+              email: app.email,
+              type: app.dwellingType,
+              orginal: app.startingCity,
+              destination: app.endingCity,
+              moving_date: app.movingDate,
+              flexibility: app.flex
+            }).then(function (response) {
+              app.fullName = '';
+              app.email = '';
+              app.dwellingType = '';
+              app.orginal = '';
+              app.destination = '';
+              app.movingDate = null;
+              app.flex = false;
+              app.startingCity = '';
+              app.endingCity = '';
+              app.startingZip = '';
+              app.endingZip = '';
+              app.fetch();
+            })
+            .catch(function (error) {
+              console.log(error);
+            })
+          },
+
+          deleteOrder: function(id) {
+            var app = this;
+            axios.delete('api/v1/orders/' + id).then(function(response) {
+              console.log(response.data);
+              app.fetch();
+            })
+            .catch(function (error) {
+              console.log(error);
+            })
+          }
         }
     }
 </script>

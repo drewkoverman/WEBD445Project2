@@ -11,6 +11,15 @@
 |
 */
 
-Route::get('/', 'OrderController@index');
+//Routing for the home page
+Route::get('/', function () {
+  return view('orders/index');
+});
 
-Route::resource('orders', 'OrderController');
+//RESTful API routes
+Route::get('api/v1/orders', 'OrderController@index');
+Route::get('api/v1/orders/{id}', 'OrderController@show');
+Route::post('api/v1/orders', 'OrderController@store');
+Route::delete('api/v1/orders/{id}', 'OrderController@destroy');
+
+//Route::resource('orders', 'OrderController');

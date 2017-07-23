@@ -17519,6 +17519,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   props: ['list'],
@@ -17534,13 +17536,13 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
       startingZip: '',
       startingCity: '',
       endingZip: '',
-      endingCity: ''
+      endingCity: '',
+      orders: {}
     };
   },
 
   mounted: function mounted() {
     this.fetch();
-    console.log('componented mounted');
   },
 
   computed: {
@@ -17571,9 +17573,11 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
   methods: {
     fetch: function fetch() {
-      //console.log(this.list);
-      //console.log(JSON.parse(this.list));
-      this.items = JSON.parse(this.list);
+      var app = this;
+      axios.get('api/v1/orders').then(function (response) {
+        console.log(response.data);
+        app.items = response.data;
+      });
     },
 
     lookupStartingZip: _.debounce(function () {
@@ -17605,7 +17609,48 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
           app.endingCity = "Invalid zipcode";
         }
       });
-    }, 500)
+    }, 500),
+
+    addOrder: function addOrder() {
+      var app = this;
+
+      console.log(app.orders);
+
+      axios.post('api/v1/orders', {
+        name: app.fullName,
+        email: app.email,
+        type: app.dwellingType,
+        orginal: app.startingCity,
+        destination: app.endingCity,
+        moving_date: app.movingDate,
+        flexibility: app.flex
+      }).then(function (response) {
+        app.fullName = '';
+        app.email = '';
+        app.dwellingType = '';
+        app.orginal = '';
+        app.destination = '';
+        app.movingDate = null;
+        app.flex = false;
+        app.startingCity = '';
+        app.endingCity = '';
+        app.startingZip = '';
+        app.endingZip = '';
+        app.fetch();
+      }).catch(function (error) {
+        console.log(error);
+      });
+    },
+
+    deleteOrder: function deleteOrder(id) {
+      var app = this;
+      axios.delete('api/v1/orders/' + id).then(function (response) {
+        console.log(response.data);
+        app.fetch();
+      }).catch(function (error) {
+        console.log(error);
+      });
+    }
   }
 });
 
@@ -48227,10 +48272,31 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
   })]), _vm._v(" "), _c('table', {
     staticClass: "table table-condensed table-striped"
   }, [_vm._m(0), _vm._v(" "), _c('tbody', _vm._l((_vm.filteredSearch), function(item) {
-    return _c('tr', [_c('td', [_vm._v(_vm._s(item.name))]), _vm._v(" "), _c('td', [_vm._v(_vm._s(item.email) + "\n                  ")]), _c('td', [_vm._v(_vm._s(item.type))]), _vm._v(" "), _c('td', [_vm._v(_vm._s(item.destination))]), _vm._v(" "), _c('td', [_vm._v(_vm._s(item.orginal))]), _vm._v(" "), _c('td', [_vm._v(_vm._s(item.moving_date))]), _vm._v(" "), _c('td', [(item.flexibility == '1') ? _c('span', [_vm._v("\n                      Yes\n                    ")]) : _c('span', [_vm._v("\n                      No\n                    ")])]), _vm._v(" "), _vm._m(1, true)])
+    return _c('tr', [_c('td', [_vm._v(_vm._s(item.name))]), _vm._v(" "), _c('td', [_vm._v(_vm._s(item.email) + "\n                  ")]), _c('td', [_vm._v(_vm._s(item.type))]), _vm._v(" "), _c('td', [_vm._v(_vm._s(item.destination))]), _vm._v(" "), _c('td', [_vm._v(_vm._s(item.orginal))]), _vm._v(" "), _c('td', [_vm._v(_vm._s(item.moving_date))]), _vm._v(" "), _c('td', [(item.flexibility == '1') ? _c('span', [_vm._v("\n                      Yes\n                    ")]) : _c('span', [_vm._v("\n                      No\n                    ")])]), _vm._v(" "), _c('td', [_c('button', {
+      staticClass: "btn btn-app btn-xs fa-lg",
+      on: {
+        "click": function($event) {
+          $event.preventDefault();
+          _vm.deleteOrder(item.id)
+        }
+      }
+    }, [_c('span', {
+      staticClass: "fa fa-trash-o"
+    })])])])
   }))])])]), _vm._v(" "), _c('div', {
     staticClass: "col-md-4 bg-gray"
-  }, [_c('form', [_c('div', {
+  }, [_c('form', {
+    attrs: {
+      "name": "frmOrders",
+      "novalidate": ""
+    },
+    on: {
+      "submit": function($event) {
+        $event.preventDefault();
+        _vm.addOrder()
+      }
+    }
+  }, [_c('div', {
     staticClass: "col-md-6"
   }, [_c('div', {
     staticClass: "form-group"
@@ -48244,7 +48310,6 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     staticClass: "form-control input-sm",
     attrs: {
       "type": "text",
-      "id": "",
       "placeholder": "Orginal Zipcode"
     },
     domProps: {
@@ -48263,7 +48328,28 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
       value: (_vm.startingCity),
       expression: "startingCity"
     }]
-  }, [_vm._v(" " + _vm._s(_vm.startingCity))])])]), _vm._v(" "), _c('div', {
+  }, [_vm._v(" " + _vm._s(_vm.startingCity))]), _vm._v(" "), _c('input', {
+    directives: [{
+      name: "model",
+      rawName: "v-model",
+      value: (_vm.startingCity),
+      expression: "startingCity"
+    }],
+    attrs: {
+      "type": "hidden",
+      "id": "orginal",
+      "name": "orginal"
+    },
+    domProps: {
+      "value": (_vm.startingCity)
+    },
+    on: {
+      "input": function($event) {
+        if ($event.target.composing) { return; }
+        _vm.startingCity = $event.target.value
+      }
+    }
+  })])]), _vm._v(" "), _c('div', {
     staticClass: "col-md-6"
   }, [_c('div', {
     staticClass: "form-group"
@@ -48277,7 +48363,6 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     staticClass: "form-control input-sm",
     attrs: {
       "type": "text",
-      "id": "",
       "placeholder": "Destination Zipcode"
     },
     domProps: {
@@ -48296,7 +48381,28 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
       value: (_vm.endingCity),
       expression: "endingCity"
     }]
-  }, [_vm._v(" " + _vm._s(_vm.endingCity))])])]), _vm._v(" "), _c('div', {
+  }, [_vm._v(" " + _vm._s(_vm.endingCity))]), _vm._v(" "), _c('input', {
+    directives: [{
+      name: "model",
+      rawName: "v-model",
+      value: (_vm.endingCity),
+      expression: "endingCity"
+    }],
+    attrs: {
+      "type": "hidden",
+      "id": "destination",
+      "name": "destination"
+    },
+    domProps: {
+      "value": (_vm.endingCity)
+    },
+    on: {
+      "input": function($event) {
+        if ($event.target.composing) { return; }
+        _vm.endingCity = $event.target.value
+      }
+    }
+  })])]), _vm._v(" "), _c('div', {
     staticClass: "col-md-12"
   }, [_c('div', {
     staticClass: "form-group controls"
@@ -48310,10 +48416,11 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     staticClass: "form-control input-sm",
     attrs: {
       "placeholder": "Moving Date",
+      "name": "moving_date",
+      "id": "moving_date",
       "type": "text",
       "onfocus": "(this.type='date')",
-      "onblur": "(this.type='text')",
-      "id": "date"
+      "onblur": "(this.type='text')"
     },
     domProps: {
       "value": (_vm.movingDate)
@@ -48336,7 +48443,8 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     staticClass: "form-control input-sm",
     attrs: {
       "type": "text",
-      "id": "",
+      "id": "fullName",
+      "name": "fullName",
       "placeholder": "Fullname"
     },
     domProps: {
@@ -48360,7 +48468,8 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     staticClass: "form-control input-sm",
     attrs: {
       "type": "text",
-      "id": "",
+      "id": "email",
+      "name": "email",
       "placeholder": "Email Address"
     },
     domProps: {
@@ -48384,7 +48493,8 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     staticClass: "form-control input-sm",
     attrs: {
       "type": "text",
-      "id": "",
+      "id": "type",
+      "name": "type",
       "placeholder": "Dwelling Type"
     },
     domProps: {
@@ -48406,10 +48516,12 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
       expression: "flex"
     }],
     attrs: {
-      "type": "checkbox"
+      "type": "checkbox",
+      "name": "flexibility",
+      "value": "1"
     },
     domProps: {
-      "checked": Array.isArray(_vm.flex) ? _vm._i(_vm.flex, null) > -1 : (_vm.flex)
+      "checked": Array.isArray(_vm.flex) ? _vm._i(_vm.flex, "1") > -1 : (_vm.flex)
     },
     on: {
       "__c": function($event) {
@@ -48417,7 +48529,7 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
           $$el = $event.target,
           $$c = $$el.checked ? (true) : (false);
         if (Array.isArray($$a)) {
-          var $$v = null,
+          var $$v = "1",
             $$i = _vm._i($$a, $$v);
           if ($$c) {
             $$i < 0 && (_vm.flex = $$a.concat($$v))
@@ -48430,7 +48542,10 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
       }
     }
   }), _vm._v(" My Date is flexible\n              ")])]), _vm._v(" "), _c('button', {
-    staticClass: "btn btn-app btn-block"
+    staticClass: "btn btn-app btn-block",
+    attrs: {
+      "type": "submit"
+    }
   }, [_vm._v("Mint My Move")])])])])])])
 },staticRenderFns: [function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
   return _c('thead', [_c('tr', {
@@ -48439,12 +48554,6 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     attrs: {
       "colspan": "2"
     }
-  })])])
-},function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('td', [_c('button', {
-    staticClass: "btn btn-app btn-xs fa-lg"
-  }, [_c('span', {
-    staticClass: "fa fa-trash-o"
   })])])
 }]}
 module.exports.render._withStripped = true

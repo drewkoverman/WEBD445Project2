@@ -10,81 +10,52 @@ use App\Order;
 
 class OrderController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    //Displays all orders
     public function index()
     {
-        //
         $orders = Order::all();
-        return view('orders.index')->with('orders', $orders);
+        return $orders;
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+    //Display order by specific ID
+    //Ex: /api/v1/orders/1
+    public function show($id) {
+      $order = Order::find($id);
+      return $order;
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
+    //Store new order resource
+    public function store(Request $request) {
+
+      //Store in the database
+      $order = new Order;
+
+      //Store all request variables
+      $order->name = $request->input('name');
+      $order->email = $request->input('email');
+      $order->moving_date = $request->input('moving_date');
+      $order->type = $request->input('type');
+      $order->flexibility = $request->input('flexibility');
+      $order->orginal = $request->input('orginal');
+      $order->destination = $request->input('destination');
+
+      //Date formating for moving_date
+      $order->moving_date = date('m/d/y');
+
+      //Save new orders
+      $order->save();
+
+      return 'Order record successfully created with id ' . $order->id;
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
+    public function destroy($id) {
+      $order = Order::find($id);
+
+      if($order) {
+        $order->delete();
+      }
+
+      return "Record deleted #" . $id;
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
-    }
 }
