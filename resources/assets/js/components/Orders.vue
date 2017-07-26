@@ -47,34 +47,34 @@
               </div>
             </div>
             <div class="col-md-4 bg-gray">
-              <form name="frmOrders" novalidate="" v-on:submit.prevent="addOrder()">
+              <form name="frmOrders" novalidate="" v-on:submit.prevent="addOrder()" data-parsley-validate>
               <div class="col-md-6">
                 <div class="form-group">
-                  <input type="text" class="form-control input-sm" placeholder="Orginal Zipcode" v-model="startingZip" />
+                  <input type="text" class="form-control input-sm" placeholder="Orginal Zipcode" v-model="startingZip" minlength="5" required />
                   <small v-show="startingCity"> {{ startingCity }}</small>
                   <input type="hidden" id="orginal" name="orginal" v-model="startingCity"  />
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="form-group">
-                  <input type="text" class="form-control input-sm"  placeholder="Destination Zipcode" v-model="endingZip" />
+                  <input type="text" class="form-control input-sm"  placeholder="Destination Zipcode" v-model="endingZip" minlength="5" required />
                   <small v-show="endingCity"> {{ endingCity }}</small>
                   <input type="hidden" id="destination" name="destination" v-model="endingCity"  />
                 </div>
               </div>
               <div class="col-md-12">
                 <div class="form-group controls">
-                  <input placeholder="Moving Date" class="form-control input-sm" name="moving_date" id="moving_date" type="text" onfocus="(this.type='date')" onblur="(this.type='text')" v-model="movingDate">
+                  <input placeholder="Moving Date" class="form-control input-sm" name="moving_date" id="moving_date" type="text" onfocus="(this.type='date')" onblur="(this.type='text')" v-model="movingDate" required>
 
                 </div>
                 <div class="form-group">
-                  <input type="text" class="form-control input-sm" id="fullName" name="fullName" placeholder="Fullname" v-model="fullName" />
+                  <input type="text" class="form-control input-sm" id="fullName" name="fullName" placeholder="Fullname" v-model="fullName" required />
                 </div>
                 <div class="form-group">
-                  <input type="text" class="form-control input-sm" id="email" name="email" placeholder="Email Address" v-model="email" />
+                  <input type="text" class="form-control input-sm" id="email" name="email" placeholder="Email Address" v-model="email" data-parsley-type="email" required />
                 </div>
                 <div class="form-group">
-                  <input type="text" class="form-control input-sm" id="type" name="type" placeholder="Dwelling Type" v-model="dwellingType" />
+                  <input type="text" class="form-control input-sm" id="type" name="type" placeholder="Dwelling Type" v-model="dwellingType" required />
                 </div>
                 <div class="checkbox">
                   <label>
@@ -117,7 +117,8 @@
 
         computed: {
           filteredSearch: function() {
-            return this.items.filter((item) => {
+            app = this;
+            return app.items.filter((item) => {
               return item.name.match(this.search)
             })
           }

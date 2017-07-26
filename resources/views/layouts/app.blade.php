@@ -7,6 +7,7 @@
     <link href="{{ elixir('css/framework.css') }}" rel="stylesheet">
     <link href="{{ elixir('css/app.css') }}" rel="stylesheet">
     <link href="{{ elixir('css/custom.css') }}" rel="stylesheet">
+    <link href="{{ elixir('css/parsley.css') }}" rel="stylesheet">
   </head>
   <body>
     @yield('content')

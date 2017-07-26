@@ -27,6 +27,16 @@ class OrderController extends Controller
     //Store new order resource
     public function store(Request $request) {
 
+      //Server Side Validation
+      $this->validate($request, [
+        'name' => 'required|max:50',
+        'email' => 'required|unique:orders',
+        'moving_date' => 'required',
+        'type' => 'required|max:30',
+        'orginal' => 'required',
+        'destination' => 'required'
+      ]);
+
       //Store in the database
       $order = new Order;
 
@@ -40,7 +50,7 @@ class OrderController extends Controller
       $order->destination = $request->input('destination');
 
       //Date formating for moving_date
-      $order->moving_date = date('m/d/y');
+      //$order->moving_date = date('m/d/y');
 
       //Save new orders
       $order->save();
